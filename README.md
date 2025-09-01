@@ -74,9 +74,6 @@ GEMINI_API_KEY=your-gemini-api-key
 AZURE_STORAGE_CONNECTION_STRING=your-azure-storage-connection-string
 AZURE_STORAGE_CONTAINER_NAME=your-container-name
 
-# Text-to-Speech API (if using external service)
-TTS_API_URL=your-tts-api-endpoint
-TTS_API_KEY=your-tts-api-key
 ```
 
 ### Installation

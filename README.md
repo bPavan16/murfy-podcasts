@@ -167,7 +167,7 @@ murphy/
 
 ### AI & Voice
 - **Google Gemini AI** - Content generation
-- **Text-to-Speech APIs** - Multi-language voice synthesis
+- **MURF API's** - Multi-language voice synthesis
 - **FFmpeg** - Audio processing
 
 ### Development Tools
@@ -303,11 +303,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
+- **MURF AI** - For providing TTS and translation api
 - **Google Gemini AI** - For intelligent content generation
 - **Radix UI** - For accessible component primitives
-- **Vercel** - For hosting and deployment platform
 - **MongoDB** - For reliable database services
-- **Azure** - For cloud storage solutions
+- **Azure** - For media storage and deployment
 
 ---
 

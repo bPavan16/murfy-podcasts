@@ -265,47 +265,6 @@ POST /api/generate-audio       # Generate audio from content
 
 ---
 
-## 🚀 Deployment
-
-### Vercel (Recommended)
-
-1. **Push to GitHub**
-   ```bash
-   git push origin main
-   ```
-
-2. **Connect to Vercel**
-   - Import your GitHub repository on Vercel
-   - Configure environment variables
-   - Deploy automatically
-
-3. **Environment Variables**
-   Add all required environment variables in Vercel dashboard
-
-### Docker Deployment
-
-```dockerfile
-FROM node:18-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-RUN npm run build
-EXPOSE 3000
-CMD ["npm", "start"]
-```
-
-### Manual Deployment
-
-```bash
-# Build the application
-npm run build
-
-# Start production server
-npm start
-```
-
----
 
 ## 🤝 Contributing
 

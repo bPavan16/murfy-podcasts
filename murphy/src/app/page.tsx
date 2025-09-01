@@ -46,7 +46,7 @@ const HomePage = () => {
         </section>
 
         {/* Features Section */}
-        <section className="mb-16">
+        <section className="mb-16 md:max-w-7xl mx-auto ">
           <h3 className="text-2xl font-bold text-center mb-8">Why Choose Murphy?</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
@@ -147,7 +147,7 @@ const HomePage = () => {
         </section>
 
         {/* CTA Section */}
-        <section className="text-center bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl p-8">
+        <section className="text-center bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl p-8 max-w-3xl mx-auto">
           <h3 className="text-2xl font-bold mb-4">Ready to Create Amazing Podcasts?</h3>
           <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
             Join thousands of creators who are already using Murphy to bring their ideas to life through the power of AI.

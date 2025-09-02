@@ -9,6 +9,15 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
+import {
     ArrowLeft,
     Play,
     Pause,
@@ -22,11 +31,14 @@ import {
     Copy,
     Music,
     Mic,
-    Trash2
+    Trash2,
+    AlertTriangle,
+    X
 } from 'lucide-react';
 import { Podcast } from '@/lib/firebase';
 import { toast } from 'sonner';
 import Navigation from '@/components/Navigation';
+import { useSession } from 'next-auth/react';
 
 const supportedLanguages = [
     { code: "english", label: "English", flag: "🇺🇸" },
@@ -41,6 +53,7 @@ const supportedLanguages = [
 export default function PodcastDetailPage() {
     const params = useParams();
     const router = useRouter();
+    const { data: session } = useSession();
     const [podcast, setPodcast] = useState<Podcast | null>(null);
     const [loading, setLoading] = useState(true);
     const [selectedLanguage, setSelectedLanguage] = useState<string>('english');
@@ -49,6 +62,7 @@ export default function PodcastDetailPage() {
     const [currentTime, setCurrentTime] = useState<{ [key: string]: number }>({});
     const [duration, setDuration] = useState<{ [key: string]: number }>({});
     const [isDeleting, setIsDeleting] = useState(false);
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
     // Memoized callback for setting audio refs to prevent infinite re-renders
     const setAudioRef = useCallback((lang: string) => {
@@ -89,6 +103,10 @@ export default function PodcastDetailPage() {
         return supportedLanguages.filter(lang =>
             podcast.urls[lang.code as keyof typeof podcast.urls]
         );
+    };
+
+    const canDeletePodcast = () => {
+        return session?.user?.email && podcast?.userId === session.user.email;
     };
 
     const formatDate = (date: Date | string) => {
@@ -168,13 +186,8 @@ export default function PodcastDetailPage() {
     const deletePodcast = async () => {
         if (!podcast) return;
         
-        const confirmed = window.confirm(
-            `Are you sure you want to delete "${podcast.idea}"? This action cannot be undone.`
-        );
-        
-        if (!confirmed) return;
-        
         setIsDeleting(true);
+        setShowDeleteDialog(false);
         
         try {
             const response = await fetch(`/api/podcasts/${podcast._id}`, {
@@ -415,16 +428,87 @@ export default function PodcastDetailPage() {
                                 <Copy className="h-4 w-4 mr-2" />
                                 Copy Transcript
                             </Button>
-                            <Button
-                                variant="outline"
-                                size="lg"
-                                onClick={deletePodcast}
-                                disabled={isDeleting}
-                                className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm border-red-200/50 dark:border-red-800/50 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-all duration-200"
-                            >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                {isDeleting ? 'Deleting...' : 'Delete Podcast'}
-                            </Button>
+                            {canDeletePodcast() && (
+                                <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+                                    <DialogTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            size="lg"
+                                            disabled={isDeleting}
+                                            className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm border-red-200/50 dark:border-red-800/50 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-all duration-200"
+                                        >
+                                            <Trash2 className="h-4 w-4 mr-2" />
+                                            {isDeleting ? 'Deleting...' : 'Delete Podcast'}
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="sm:max-w-[500px] bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-red-200/50 dark:border-red-800/50">
+                                        <DialogHeader className="space-y-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-3 rounded-full bg-red-100 dark:bg-red-900/30">
+                                                    <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <DialogTitle className="text-xl font-semibold text-red-900 dark:text-red-100">
+                                                        Delete Podcast
+                                                    </DialogTitle>
+                                                    <DialogDescription className="text-red-700 dark:text-red-300 mt-1">
+                                                        This action cannot be undone
+                                                    </DialogDescription>
+                                                </div>
+                                            </div>
+                                        </DialogHeader>
+                                        
+                                        <div className="py-6">
+                                            <div className="bg-red-50 dark:bg-red-950/50 rounded-lg p-4 border border-red-200/50 dark:border-red-800/50">
+                                                <p className="text-gray-800 dark:text-gray-200 font-medium mb-2">
+                                                    Are you sure you want to delete this podcast?
+                                                </p>
+                                                <div className="bg-white/70 dark:bg-gray-800/70 rounded-md p-3 border border-red-200/30 dark:border-red-800/30">
+                                                    <p className="font-semibold text-purple-900 dark:text-purple-100 text-lg">
+                                                        &ldquo;{podcast.idea}&rdquo;
+                                                    </p>
+                                                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                        {podcast.description}
+                                                    </p>
+                                                </div>
+                                                <p className="text-red-700 dark:text-red-300 text-sm mt-3 font-medium">
+                                                    ⚠️ This will permanently delete the podcast and all its audio files. This action cannot be undone.
+                                                </p>
+                                            </div>
+                                        </div>
+                                        
+                                        <DialogFooter className="gap-3">
+                                            <Button
+                                                variant="outline"
+                                                onClick={() => setShowDeleteDialog(false)}
+                                                disabled={isDeleting}
+                                                className="bg-white/70 dark:bg-gray-800/70 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200"
+                                            >
+                                                <X className="h-4 w-4 mr-2" />
+                                                Cancel
+                                            </Button>
+                                            <Button
+                                                variant="destructive"
+                                                onClick={deletePodcast}
+                                                disabled={isDeleting}
+                                                className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 shadow-lg hover:shadow-xl transition-all duration-200 min-w-[120px]"
+                                            >
+                                                {isDeleting ? (
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                        Deleting...
+                                                    </div>
+                                                ) : (
+                                                    <>
+                                                        <Trash2 className="h-4 w-4 mr-2" />
+                                                        Delete Forever
+                                                    </>
+                                                )}
+                                            </Button>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
+                            )}
                         </div>
                     </div>
                 </div>

@@ -19,7 +19,7 @@ import {
     SheetTrigger,
     SheetClose,
 } from '@/components/ui/sheet';
-import { Mic, Library, Home, Headphones, User, LogOut, Settings, Menu } from 'lucide-react';
+import { Mic, Library, Home, Headphones, User, LogOut, Menu } from 'lucide-react';
 import { useSession, signOut } from 'next-auth/react';
 import { toast } from 'sonner';
 
@@ -107,12 +107,14 @@ export default function Navigation() {
                                             Profile
                                         </Link>
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem asChild>
+
+                                    {/* <DropdownMenuItem asChild>
                                         <Link href="/settings" className="flex items-center gap-2 cursor-pointer text-sm">
                                             <Settings className="h-4 w-4" />
                                             Settings
                                         </Link>
-                                    </DropdownMenuItem>
+                                    </DropdownMenuItem> */}
+
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem
                                         className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-600 text-sm"
@@ -172,12 +174,12 @@ export default function Navigation() {
                                             Profile
                                         </Link>
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem asChild>
+                                    {/* <DropdownMenuItem asChild>
                                         <Link href="/settings" className="flex items-center gap-2 cursor-pointer text-sm">
                                             <Settings className="h-4 w-4" />
                                             Settings
                                         </Link>
-                                    </DropdownMenuItem>
+                                    </DropdownMenuItem> */}
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem
                                         className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-600 text-sm"

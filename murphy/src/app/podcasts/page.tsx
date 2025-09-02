@@ -9,19 +9,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Mic, 
-  Calendar, 
-  User, 
-  Search, 
-  Play, 
-  FileText,
-  Headphones,
-  ArrowRight,
-  Music,
-  Globe,
-  UserCheck,
-  Sparkles
+import {
+    Mic,
+    Calendar,
+    User,
+    Search,
+    Play,
+    FileText,
+    Headphones,
+    ArrowRight,
+    Music,
+    Globe,
+    UserCheck,
+    Sparkles
 } from 'lucide-react';
 import { Podcast } from '@/lib/firebase';
 import Navigation from '@/components/Navigation';
@@ -52,6 +52,7 @@ export default function PodcastsPage() {
                 const allResponse = await fetch('/api/podcasts?type=all');
                 if (allResponse.ok) {
                     const allData = await allResponse.json();
+                    console.log('All podcasts:', allData);
                     setAllPodcasts(allData);
                 }
 
@@ -79,15 +80,15 @@ export default function PodcastsPage() {
 
     const filteredPodcasts = getCurrentPodcasts().filter((podcast: Podcast) => {
         const matchesSearch = podcast.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            podcast.idea.toLowerCase().includes(searchTerm.toLowerCase());
-        
+            podcast.idea.toLowerCase().includes(searchTerm.toLowerCase());
+
         if (selectedLanguage === 'all') return matchesSearch;
-        
+
         return matchesSearch && podcast.urls[selectedLanguage as keyof typeof podcast.urls];
     });
 
     const getAvailableLanguages = (podcast: Podcast) => {
-        return supportedLanguages.filter(lang => 
+        return supportedLanguages.filter(lang =>
             podcast.urls[lang.code as keyof typeof podcast.urls]
         );
     };
@@ -118,12 +119,12 @@ export default function PodcastsPage() {
                                 <Skeleton className="h-6 w-96" />
                             </div>
                         </div>
-                        
+
                         {/* Tabs Skeleton */}
                         <div className="mb-8">
                             <Skeleton className="h-12 w-80 rounded-lg" />
                         </div>
-                        
+
                         {/* Search and Filter Skeleton */}
                         <div className="flex flex-col md:flex-row gap-4 mb-8">
                             <Skeleton className="h-12 flex-1" />
@@ -169,7 +170,7 @@ export default function PodcastsPage() {
     return (
         <div className="min-h-screen bg-gradient-to-tr from-purple-50/50 via-white to-white dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
             <Navigation />
-            
+
             {/* Decorative Background Elements */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-1/4 -left-4 w-96 h-96 bg-purple-300/20 dark:bg-purple-600/10 rounded-full blur-3xl"></div>
@@ -190,7 +191,7 @@ export default function PodcastsPage() {
                         <p className="text-muted-foreground text-xl max-w-2xl mx-auto leading-relaxed">
                             Discover and listen to AI-generated podcasts crafted with cutting-edge technology
                         </p>
-                        
+
                         {/* Stats Bar */}
                         <div className="flex items-center justify-center gap-8 mt-8 p-6 rounded-2xl bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm border border-purple-200/50 dark:border-purple-800/50 max-w-2xl mx-auto">
                             <div className="text-center">
@@ -222,8 +223,8 @@ export default function PodcastsPage() {
                     {/* Enhanced Tabs */}
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
                         <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto h-14 p-1 bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm border border-purple-200/50 dark:border-purple-800/50">
-                            <TabsTrigger 
-                                value="all" 
+                            <TabsTrigger
+                                value="all"
                                 className="flex items-center gap-2 h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-blue-500 data-[state=active]:text-white transition-all duration-200"
                             >
                                 <Globe className="h-4 w-4" />
@@ -232,9 +233,9 @@ export default function PodcastsPage() {
                                     {allPodcasts.length}
                                 </Badge>
                             </TabsTrigger>
-                            <TabsTrigger 
-                                value="my" 
-                                className="flex items-center gap-2 h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-blue-500 data-[state=active]:text-white transition-all duration-200" 
+                            <TabsTrigger
+                                value="my"
+                                className="flex items-center gap-2 h-12 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-blue-500 data-[state=active]:text-white transition-all duration-200"
                                 disabled={!session?.user}
                             >
                                 <UserCheck className="h-4 w-4" />
@@ -245,7 +246,7 @@ export default function PodcastsPage() {
                             </TabsTrigger>
                         </TabsList>
                     </Tabs>
-                    
+
                     {/* Action Section */}
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 p-6 rounded-2xl bg-gradient-to-r from-purple-500/10 to-blue-500/10 backdrop-blur-sm border border-purple-200/50 dark:border-purple-800/50">
                         <div className="flex items-center gap-3">
@@ -337,7 +338,7 @@ export default function PodcastsPage() {
                                         No podcasts found
                                     </h3>
                                     <p className="text-muted-foreground mb-8 text-lg leading-relaxed">
-                                        {searchTerm || selectedLanguage !== 'all' 
+                                        {searchTerm || selectedLanguage !== 'all'
                                             ? 'Try adjusting your search filters or explore all available podcasts.'
                                             : 'No podcasts are available at the moment. Be the first to create one!'
                                         }
@@ -356,8 +357,8 @@ export default function PodcastsPage() {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {filteredPodcasts.map((podcast, index) => (
-                            <Card 
-                                key={podcast._id} 
+                            <Card
+                                key={podcast._id}
                                 className="border-0 bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm overflow-hidden relative h-full flex flex-col min-h-[450px]"
                                 style={{
                                     animationDelay: `${index * 100}ms`,
@@ -368,12 +369,14 @@ export default function PodcastsPage() {
                             >
                                 {/* Gradient Border Effect */}
                                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-blue-500"></div>
-                                
+
                                 <CardHeader className="pb-6 relative z-10">
                                     <div className="flex items-start justify-between">
                                         <div className="flex-1">
                                             <CardTitle className="text-xl line-clamp-4 leading-tight min-h-[4.5rem]">
-                                                {podcast.idea}
+                                                <Link href={`/podcasts/${podcast._id}`} className='hover:text-fuchsia-800 '>
+                                                    {podcast.idea}
+                                                </Link>
                                             </CardTitle>
                                             <CardDescription className="mt-4 line-clamp-5 text-base leading-relaxed min-h-[6rem]">
                                                 {podcast.description}
@@ -384,7 +387,7 @@ export default function PodcastsPage() {
                                         </div>
                                     </div>
                                 </CardHeader>
-                                
+
                                 <CardContent className="flex-1 flex flex-col justify-between space-y-6 relative z-10 pb-8">
                                     <div className="space-y-6">
                                         {/* Enhanced Stats */}
@@ -413,9 +416,9 @@ export default function PodcastsPage() {
                                             </div>
                                             <div className="flex flex-wrap gap-2 min-h-[2.5rem]">
                                                 {getAvailableLanguages(podcast).map((lang) => (
-                                                    <Badge 
-                                                        key={lang.code} 
-                                                        variant="secondary" 
+                                                    <Badge
+                                                        key={lang.code}
+                                                        variant="secondary"
                                                         className="text-xs bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 text-purple-800 dark:text-purple-200 px-4 py-1"
                                                     >
                                                         {lang.label}

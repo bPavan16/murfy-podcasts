@@ -5,9 +5,22 @@ import { v4 as uuidv4 } from "uuid";
 import { addPodcast } from '@/lib/firebase';
 import fs from 'fs';
 import path from 'path';
+import {getServerSession} from 'next-auth'
+import { authOptions } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
     try {
+        
+        const session = await getServerSession(authOptions);
+        
+        if (!session || !session.user) {
+            return NextResponse.json(
+                { error: 'Authentication required' },
+                { status: 401 }
+            );
+        }
+        
+        const userEmail = session.user.email;
 
         const { content, names, langVoiceMap, description, title } = await request.json();
         
@@ -35,10 +48,8 @@ export async function POST(request: NextRequest) {
             url[lang] = uploadedUrl;
         }
 
-        
-        await addPodcast(description, title, podcastUniqueId, content, uuidv4(), url);
+        await addPodcast(description, title, podcastUniqueId, content, userEmail, url);
 
-        
         const audioFiles: Record<
             string,
             { audio: string; mimeType: string; fileName: string }
@@ -55,7 +66,6 @@ export async function POST(request: NextRequest) {
                 fileName: path.basename(filePath),
             };
 
-            
             try {
                 fs.unlinkSync(filePath);
             } catch (e) {

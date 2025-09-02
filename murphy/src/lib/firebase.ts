@@ -40,7 +40,7 @@ export async function addPodcast(
   idea: string,
   podcastId: string,
   podcastTextContent: string,
-  userId: string,
+  userEmail: string,
   urls: Record<string, string> = {}
 ) {
   try {
@@ -60,7 +60,7 @@ export async function addPodcast(
         italian: urls.italian || "",
         tamil: urls.tamil || "",
       },
-      userId: userId || "",
+      userId: userEmail || "", // storing email as userId for consistency with existing schema
       createdAt: new Date(),
     };
 
@@ -70,7 +70,7 @@ export async function addPodcast(
       { upsert: true }
     );
 
-    console.log("Podcast written with ID:", podcastId);
+    console.log("Podcast written with ID:", podcastId, "for user:", userEmail);
   } catch (e) {
     console.error("Error adding podcast:", e);
   }
@@ -107,5 +107,35 @@ export async function getPodcastsByUserId(userId: string): Promise<Podcast[]> {
   } catch (e) {
     console.error("Error fetching user podcasts:", e);
     return [];
+  }
+}
+
+export async function deletePodcast(podcastId: string, userEmail: string): Promise<{ success: boolean; message: string }> {
+  try {
+    const { podcasts } = await connectDB();
+    
+    // First verify the podcast exists and belongs to the user
+    const podcast = await podcasts.findOne({ _id: podcastId });
+    
+    if (!podcast) {
+      return { success: false, message: "Podcast not found" };
+    }
+    
+    if (podcast.userId !== userEmail) {
+      return { success: false, message: "Unauthorized: You can only delete your own podcasts" };
+    }
+    
+    // Delete the podcast
+    const result = await podcasts.deleteOne({ _id: podcastId });
+    
+    if (result.deletedCount === 1) {
+      console.log("Podcast deleted with ID:", podcastId, "by user:", userEmail);
+      return { success: true, message: "Podcast deleted successfully" };
+    } else {
+      return { success: false, message: "Failed to delete podcast" };
+    }
+  } catch (e) {
+    console.error("Error deleting podcast:", e);
+    return { success: false, message: "Error deleting podcast" };
   }
 }

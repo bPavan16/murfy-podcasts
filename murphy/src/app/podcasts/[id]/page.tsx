@@ -21,7 +21,8 @@ import {
     Volume2,
     Copy,
     Music,
-    Mic
+    Mic,
+    Trash2
 } from 'lucide-react';
 import { Podcast } from '@/lib/firebase';
 import { toast } from 'sonner';
@@ -47,6 +48,7 @@ export default function PodcastDetailPage() {
     const audioRefs = useRef<{ [key: string]: HTMLAudioElement | null }>({});
     const [currentTime, setCurrentTime] = useState<{ [key: string]: number }>({});
     const [duration, setDuration] = useState<{ [key: string]: number }>({});
+    const [isDeleting, setIsDeleting] = useState(false);
 
     // Memoized callback for setting audio refs to prevent infinite re-renders
     const setAudioRef = useCallback((lang: string) => {
@@ -55,13 +57,7 @@ export default function PodcastDetailPage() {
         };
     }, []);
 
-    useEffect(() => {
-        if (params.id) {
-            fetchPodcast(params.id as string);
-        }
-    }, [params.id]);
-
-    const fetchPodcast = async (id: string) => {
+    const fetchPodcast = useCallback(async (id: string) => {
         try {
             const response = await fetch(`/api/podcasts/${id}`);
             if (response.ok) {
@@ -76,13 +72,18 @@ export default function PodcastDetailPage() {
                 toast.error('Podcast not found');
                 router.push('/podcasts');
             }
-        } catch (error) {
-            console.error('Error fetching podcast:', error);
+        } catch {
             toast.error('Failed to load podcast');
         } finally {
             setLoading(false);
         }
-    };
+    }, [router]);
+
+    useEffect(() => {
+        if (params.id) {
+            fetchPodcast(params.id as string);
+        }
+    }, [params.id, fetchPodcast]);
 
     const getAvailableLanguages = (podcast: Podcast) => {
         return supportedLanguages.filter(lang =>
@@ -150,7 +151,7 @@ export default function PodcastDetailPage() {
         try {
             await navigator.clipboard.writeText(text);
             toast.success('Content copied to clipboard!');
-        } catch (error) {
+        } catch {
             toast.error('Failed to copy content');
         }
     };
@@ -159,8 +160,40 @@ export default function PodcastDetailPage() {
         try {
             await navigator.clipboard.writeText(window.location.href);
             toast.success('Podcast link copied to clipboard!');
-        } catch (error) {
+        } catch {
             toast.error('Failed to copy link');
+        }
+    };
+
+    const deletePodcast = async () => {
+        if (!podcast) return;
+        
+        const confirmed = window.confirm(
+            `Are you sure you want to delete "${podcast.idea}"? This action cannot be undone.`
+        );
+        
+        if (!confirmed) return;
+        
+        setIsDeleting(true);
+        
+        try {
+            const response = await fetch(`/api/podcasts/${podcast._id}`, {
+                method: 'DELETE',
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                toast.success('Podcast deleted successfully!');
+                router.push('/podcasts');
+            } else {
+                toast.error(data.error || 'Failed to delete podcast');
+            }
+        } catch (error) {
+            console.error('Error deleting podcast:', error);
+            toast.error('Failed to delete podcast');
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -381,6 +414,16 @@ export default function PodcastDetailPage() {
                             >
                                 <Copy className="h-4 w-4 mr-2" />
                                 Copy Transcript
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="lg"
+                                onClick={deletePodcast}
+                                disabled={isDeleting}
+                                className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm border-red-200/50 dark:border-red-800/50 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-all duration-200"
+                            >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                {isDeleting ? 'Deleting...' : 'Delete Podcast'}
                             </Button>
                         </div>
                     </div>
